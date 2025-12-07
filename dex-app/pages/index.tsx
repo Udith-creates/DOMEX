@@ -223,16 +223,18 @@ export default function Home() {
         </Flex>
 
         {address ? (
-          <Button
-            onClick={executeSwap}
-            py="7"
-            fontSize="2xl"
-            colorScheme="twitter"
-            rounded="xl"
-            isDisabled={loading}
-          >
-            {loading ? <Spinner /> : "Execute Swap"}
-          </Button>
+          <>
+            <Button
+              onClick={executeSwap}
+              py="7"
+              fontSize="2xl"
+              colorScheme="twitter"
+              rounded="xl"
+              isDisabled={loading}
+            >
+              {loading ? <Spinner /> : "Execute Swap"}
+            </Button>
+          </>
         ) : (
           <ConnectWallet
             style={{ padding: "20px 0px", fontSize: "18px" }}

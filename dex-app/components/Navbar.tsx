@@ -1,6 +1,7 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex, Text, Button } from "@chakra-ui/react";
 import { ConnectWallet } from "@thirdweb-dev/react";
 import React from "react";
+import Link from "next/link";
 
 export default function Navbar() {
   return (
@@ -17,7 +18,14 @@ export default function Navbar() {
         <Text fontWeight="bold" fontSize="2xl">
           Token DEX
         </Text>
-        <ConnectWallet theme="light" />
+        <Flex gap="4" alignItems="center">
+          <Link href="/account">
+            <Button colorScheme="blue" variant="outline">
+              Account
+            </Button>
+          </Link>
+          <ConnectWallet theme="light" />
+        </Flex>
       </Flex>
     </Box>
   );
