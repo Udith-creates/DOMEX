@@ -1,14 +1,77 @@
+# Dependencies
 node_modules/
-.DS_Store
-.env
-.env.local
-.vscode/settings.json
+.pnp
+.pnp.js
+yarn.lock
+pnpm-lock.yaml
+package-lock.json
+
+# Testing
+coverage/
+.nyc_output/
+
+# Production
 dist/
 build/
 out/
+
+# Next.js
 .next/
-.yarn/
-.cache/
-*.lock
-pnpm-lock.yaml
-yarn.lock
+.nextjs/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Hardhat
+cache/
+artifacts/
+typechain/
+typechain-types/
+
+# Foundry
+.foundry_cache/
+forge-cache/
+
+# Misc
+.cache
+*.tsbuildinfo
+
+# Deployment artifacts
+deployments/
+.deployments/
+
+# Local development
+localhost_artifacts/
+.next/trace
+
+# Yarn
+.yarn/cache/
+.yarn/install-state.gz
