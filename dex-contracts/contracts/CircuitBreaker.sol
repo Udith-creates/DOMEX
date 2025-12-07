@@ -348,4 +348,14 @@ contract CircuitBreaker is IERC7265CircuitBreaker, Ownable {
             settlementPayload
         );
     }
+
+    ////////////////////////////////////////////////////////////////
+    //                    RECEIVE & FALLBACK                      //
+    ////////////////////////////////////////////////////////////////
+
+    /// @notice Allows contract to receive Flare native currency
+    receive() external payable {}
+
+    /// @notice Fallback function for any other calls
+    fallback() external payable {}
 }

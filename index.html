@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Flare FTSO Live Dashboard</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Ethers.js -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
+
+  <style>
+    body {
+      background: #0f0f0f;
+      color: #fff;
+      font-family: Arial;
+      margin: 0;
+      padding: 30px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .card-container {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .card {
+      background: #1b1b1b;
+      padding: 20px;
+      width: 250px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 12px #000;
+    }
+    .card h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+    .card .price {
+      font-size: 28px;
+      margin-top: 10px;
+      color: #4cc9f0;
+    }
+    canvas {
+      background: #111;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🔥 Flare FTSO Real-Time Price Dashboard</h1>
+
+<div class="card-container">
+  <div class="card">
+    <h2>FLR / USD</h2>
+    <div id="flr_price" class="price">Loading...</div>
+  </div>
+
+  <div class="card">
+    <h2>ETH / USD</h2>
+    <div id="eth_price" class="price">Loading...</div>
+  </div>
+
+  <div class="card">
+    <h2>BTC / USD</h2>
+    <div id="btc_price" class="price">Loading...</div>
+  </div>
+</div>
+
+<!-- Chart section -->
+<canvas id="priceChart" width="800" height="380"></canvas>
+
+<script>
+  // ------------------------------
+  // 1. Network + Contract Settings
+  // ------------------------------
+  const RPC = "https://coston2-api.flare.network/ext/C/rpc";
+  const provider = new ethers.JsonRpcProvider(RPC);
+
+  const READER = "0xa0A517b82088a23A099363841A7c79eaAF4Adac8"; // <--- Your contract
+
+  const ABI = [
+    "function getFlrUsd() view returns (uint256,int8,uint64)",
+    "function getEthUsd() view returns (uint256,int8,uint64)",
+    "function getBtcUsd() view returns (uint256,int8,uint64)"
+  ];
+
+  const reader = new ethers.Contract(READER, ABI, provider);
+
+  // ------------------------------
+  // 2. Chart.js Setup
+  // ------------------------------
+  const ctx = document.getElementById("priceChart");
+  const chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: [],
+      datasets: [
+        { label: "FLR", data: [], borderWidth: 2 },
+        { label: "ETH", data: [], borderWidth: 2 },
+        { label: "BTC", data: [], borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: false }
+      }
+    }
+  });
+
+  // ------------------------------
+  // 3. Fetch Prices Function
+  // ------------------------------
+  async function fetchPrices() {
+    try {
+      const [flr, eth, btc] = await Promise.all([
+        reader.getFlrUsd(),
+        reader.getEthUsd(),
+        reader.getBtcUsd()
+      ]);
+
+      const flrPrice = Number(flr[0]) / 10 ** Number(flr[1]);
+      const ethPrice = Number(eth[0]) / 10 ** Number(eth[1]);
+      const btcPrice = Number(btc[0]) / 10 ** Number(btc[1]);
+
+      document.getElementById("flr_price").innerText = flrPrice.toFixed(5);
+      document.getElementById("eth_price").innerText = ethPrice.toFixed(2);
+      document.getElementById("btc_price").innerText = btcPrice.toFixed(2);
+
+      // Update chart
+      const timestamp = new Date().toLocaleTimeString();
+      chart.data.labels.push(timestamp);
+      chart.data.datasets[0].data.push(flrPrice);
+      chart.data.datasets[1].data.push(ethPrice);
+      chart.data.datasets[2].data.push(btcPrice);
+
+      // Keep only last 20 points
+      if (chart.data.labels.length > 20) {
+        chart.data.labels.shift();
+        chart.data.datasets.forEach(ds => ds.data.shift());
+      }
+
+      chart.update();
+
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
+  }
+
+  // Run immediately
+  fetchPrices();
+  // Refresh every 5 seconds
+  setInterval(fetchPrices, 5000);
+</script>
+
+</body>
+</html>
