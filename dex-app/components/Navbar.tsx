@@ -24,6 +24,11 @@ export default function Navbar() {
               Account
             </Button>
           </Link>
+          <Link href="/fassets">
+            <Button colorScheme="orange" variant="outline">
+              fAssets
+            </Button>
+          </Link>
           <ConnectWallet theme="light" />
         </Flex>
       </Flex>
