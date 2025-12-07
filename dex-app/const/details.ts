@@ -3,6 +3,7 @@ export const TOKEN_ADDRESS: string =
   "0x6e4d9c4Fe27930a6D1666C4da39b99b302D632cD";
 export const DEX_ADDRESS: string = "0xb54Fb07502e97D846B7F07Cf854ba0C153f9Adb6";
 export const FASSET_ADDRESS: string = "0x0eae54D08903308a2E7B077dAc3C2546fD999a4f";
+export const CIRCUITBREAKER_ADDRESS: string = "0x158539ED915830ab0d0b5feC55CE68E1e2A32350";
 export const ACTIVE_CHAIN: Chain = FlareTestnetCoston2;
 export const DEX_ABI = [
   {
@@ -1084,3 +1085,99 @@ export const FASSET_ABI = [
 		"type": "function"
 	}
 ];
+
+export const CIRCUITBREAKER_ABI = [
+	{
+		"inputs": [],
+		"name": "isOperational",
+		"outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "isRateLimited",
+		"outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "rateLimitCooldownPeriod",
+		"outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "lastRateLimitTimestamp",
+		"outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "gracePeriodEndTimestamp",
+		"outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [{"internalType": "address", "name": "_contract", "type": "address"}],
+		"name": "isProtectedContract",
+		"outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [{"internalType": "bytes32", "name": "identifier", "type": "bytes32"}],
+		"name": "limiters",
+		"outputs": [
+			{"internalType": "uint256", "name": "maxWithdrawalPerBlock", "type": "uint256"},
+			{"internalType": "uint256", "name": "blockNumber", "type": "uint256"},
+			{"internalType": "uint256", "name": "withdrawalsSinceLastBlock", "type": "uint256"},
+			{"internalType": "uint256", "name": "overriden", "type": "bool"}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{"internalType": "address[]", "name": "_ProtectedContracts", "type": "address[]"}
+		],
+		"name": "addProtectedContracts",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{"internalType": "address[]", "name": "_ProtectedContracts", "type": "address[]"}
+		],
+		"name": "removeProtectedContracts",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [{"internalType": "bool", "name": "newOperationalStatus", "type": "bool"}],
+		"name": "setCircuitBreakerOperationalStatus",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [{"internalType": "uint256", "name": "_gracePeriodEndTimestamp", "type": "uint256"}],
+		"name": "startGracePeriod",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [{"internalType": "bytes32", "name": "identifier", "type": "bytes32"}],
+		"name": "overrideRateLimit",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+];;

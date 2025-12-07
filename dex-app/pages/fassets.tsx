@@ -11,6 +11,10 @@ export default function FAssetsPage() {
   const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
   const [reserveFETH, setReserveFETH] = useState("0");
   const [reserveWFLR, setReserveWFLR] = useState("0");
+  const [fethBalance, setFethBalance] = useState("0");
+  const [wflrBalance, setWflrBalance] = useState("0");
+  const [fethAddress, setFethAddress] = useState<string | null>(null);
+  const [wflrAddress, setWflrAddress] = useState<string | null>(null);
 
   const {
     swapFETHForFLR,
@@ -19,6 +23,12 @@ export default function FAssetsPage() {
     removeLiquidity,
     getReserveFETH,
     getReserveWFLR,
+    getFETHAddress,
+    getWFLRAddress,
+    approveFETH,
+    approveWFLR,
+    getFETHBalance,
+    getWFLRBalance,
     loading,
     error,
     isReady,
@@ -47,8 +57,20 @@ export default function FAssetsPage() {
         try {
           const feth = await getReserveFETH();
           const wflr = await getReserveWFLR();
+          const fethAddr = await getFETHAddress();
+          const wflrAddr = await getWFLRAddress();
+          
           setReserveFETH(feth);
           setReserveWFLR(wflr);
+          setFethAddress(fethAddr);
+          setWflrAddress(wflrAddr);
+
+          if (address && fethAddr && wflrAddr) {
+            const fethBal = await getFETHBalance(fethAddr, address);
+            const wflrBal = await getWFLRBalance(wflrAddr, address);
+            setFethBalance(fethBal);
+            setWflrBalance(wflrBal);
+          }
         } catch (err) {
           console.error("Failed to load reserves:", err);
         }
@@ -56,13 +78,36 @@ export default function FAssetsPage() {
     };
 
     loadReserves();
-  }, [isReady, getReserveFETH, getReserveWFLR]);
+  }, [isReady, getReserveFETH, getReserveWFLR, getFETHAddress, getWFLRAddress, getFETHBalance, getWFLRBalance, address]);
 
   const handleSwapFETHForFLR = async () => {
     try {
       const amount = prompt("Enter amount of fETH to swap:");
       if (!amount) return;
 
+      if (!fethAddress) {
+        toast({
+          title: "Error",
+          description: "fETH address not loaded",
+          status: "error",
+          duration: 5,
+          isClosable: true,
+        });
+        return;
+      }
+
+      // First approve the token
+      toast({
+        title: "Approving",
+        description: "Please approve fETH spending...",
+        status: "info",
+        duration: 10,
+        isClosable: true,
+      });
+
+      await approveFETH(fethAddress, amount);
+
+      // Then swap
       await swapFETHForFLR(amount);
       toast({
         title: "Success",
@@ -88,13 +133,36 @@ export default function FAssetsPage() {
 
   const handleSwapFLRForFETH = async () => {
     try {
-      const amount = prompt("Enter amount of FLR to swap:");
+      const amount = prompt("Enter amount of WFLR to swap:");
       if (!amount) return;
 
+      if (!wflrAddress) {
+        toast({
+          title: "Error",
+          description: "WFLR address not loaded",
+          status: "error",
+          duration: 5,
+          isClosable: true,
+        });
+        return;
+      }
+
+      // First approve the token
+      toast({
+        title: "Approving",
+        description: "Please approve WFLR spending...",
+        status: "info",
+        duration: 10,
+        isClosable: true,
+      });
+
+      await approveWFLR(wflrAddress, amount);
+
+      // Then swap
       await swapFLRForFETH(amount);
       toast({
         title: "Success",
-        description: `Swapped ${amount} FLR for fETH`,
+        description: `Swapped ${amount} WFLR for fETH`,
         status: "success",
         duration: 5,
         isClosable: true,
@@ -197,6 +265,7 @@ export default function FAssetsPage() {
           </h2>
 
           <div style={{ marginBottom: "20px", padding: "15px", backgroundColor: "#f7fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+            <h3 style={{ marginBottom: "12px", fontSize: "16px", fontWeight: "bold" }}>Pool Reserves</h3>
             <p style={{ marginBottom: "8px" }}>
               <strong>fETH Reserve:</strong> <span style={{ fontSize: "18px", fontWeight: "bold", color: "#22543d" }}>{reserveFETH}</span>
             </p>
@@ -205,6 +274,16 @@ export default function FAssetsPage() {
             </p>
             <p style={{ marginTop: "8px", marginBottom: "0" }}>
               <strong>Contract Ready:</strong> {isReady ? "✓ Yes" : "✗ No"}
+            </p>
+          </div>
+
+          <div style={{ marginBottom: "20px", padding: "15px", backgroundColor: "#e8f5e9", borderRadius: "8px", border: "1px solid #c8e6c9" }}>
+            <h3 style={{ marginBottom: "12px", fontSize: "16px", fontWeight: "bold" }}>Your Balances</h3>
+            <p style={{ marginBottom: "8px" }}>
+              <strong>fETH Balance:</strong> <span style={{ fontSize: "18px", fontWeight: "bold", color: "#1b5e20" }}>{fethBalance}</span>
+            </p>
+            <p style={{ marginBottom: "0" }}>
+              <strong>WFLR Balance:</strong> <span style={{ fontSize: "18px", fontWeight: "bold", color: "#1b5e20" }}>{wflrBalance}</span>
             </p>
           </div>
 

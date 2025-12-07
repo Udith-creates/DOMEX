@@ -29,6 +29,16 @@ export default function Navbar() {
               fAssets
             </Button>
           </Link>
+          <Link href="/fassets-simulator">
+            <Button colorScheme="teal" variant="outline">
+              Simulator
+            </Button>
+          </Link>
+          <Link href="/circuitbreaker">
+            <Button colorScheme="purple" variant="outline">
+              Circuit Breaker
+            </Button>
+          </Link>
           <ConnectWallet theme="light" />
         </Flex>
       </Flex>

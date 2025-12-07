@@ -2,6 +2,29 @@ import { useCallback, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { FASSET_ADDRESS, FASSET_ABI } from "@/const/details";
 
+// Simple ERC20 ABI for approvals
+const ERC20_ABI = [
+  {
+    inputs: [
+      { internalType: "address", name: "spender", type: "address" },
+      { internalType: "uint256", name: "amount", type: "uint256" },
+    ],
+    name: "approve",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "account", type: "address" },
+    ],
+    name: "balanceOf",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+];
+
 export function useFAsset(provider: ethers.providers.Web3Provider | null) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +59,7 @@ export function useFAsset(provider: ethers.providers.Web3Provider | null) {
         if (!contract) throw new Error("Contract not initialized");
         if (!provider) throw new Error("Provider not connected");
 
-        const signer = provider.getSigner();
+        const signer = await provider.getSigner();
         const contractWithSigner = contract.connect(signer);
         const amountWei = ethers.utils.parseEther(amountFETH);
 
@@ -66,7 +89,7 @@ export function useFAsset(provider: ethers.providers.Web3Provider | null) {
         if (!contract) throw new Error("Contract not initialized");
         if (!provider) throw new Error("Provider not connected");
 
-        const signer = provider.getSigner();
+        const signer = await provider.getSigner();
         const contractWithSigner = contract.connect(signer);
         const amountWei = ethers.utils.parseEther(amountFLR);
 
@@ -96,7 +119,7 @@ export function useFAsset(provider: ethers.providers.Web3Provider | null) {
         if (!contract) throw new Error("Contract not initialized");
         if (!provider) throw new Error("Provider not connected");
 
-        const signer = provider.getSigner();
+        const signer = await provider.getSigner();
         const contractWithSigner = contract.connect(signer);
         const fethWei = ethers.utils.parseEther(amountFETH);
         const wflrWei = ethers.utils.parseEther(amountWFLR);
@@ -127,7 +150,7 @@ export function useFAsset(provider: ethers.providers.Web3Provider | null) {
         if (!contract) throw new Error("Contract not initialized");
         if (!provider) throw new Error("Provider not connected");
 
-        const signer = provider.getSigner();
+        const signer = await provider.getSigner();
         const contractWithSigner = contract.connect(signer);
         const liquidityWei = ethers.utils.parseEther(liquidity);
 
@@ -201,6 +224,100 @@ export function useFAsset(provider: ethers.providers.Web3Provider | null) {
     }
   }, [contract]);
 
+  const approveFETH = useCallback(
+    async (tokenAddress: string, amount: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (!provider) throw new Error("Provider not connected");
+
+        const signer = await provider.getSigner();
+        const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+        const amountWei = ethers.utils.parseEther(amount);
+
+        console.log("Approving fETH:", amount);
+        const tx = await tokenContract.approve(FASSET_ADDRESS, amountWei);
+        const receipt = await tx.wait();
+
+        console.log("Approval successful:", receipt);
+        setLoading(false);
+        return receipt;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Approval failed";
+        console.error("approveFETH error:", errorMsg);
+        setError(errorMsg);
+        setLoading(false);
+        throw err;
+      }
+    },
+    [provider]
+  );
+
+  const approveWFLR = useCallback(
+    async (tokenAddress: string, amount: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (!provider) throw new Error("Provider not connected");
+
+        const signer = await provider.getSigner();
+        const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+        const amountWei = ethers.utils.parseEther(amount);
+
+        console.log("Approving WFLR:", amount);
+        const tx = await tokenContract.approve(FASSET_ADDRESS, amountWei);
+        const receipt = await tx.wait();
+
+        console.log("Approval successful:", receipt);
+        setLoading(false);
+        return receipt;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Approval failed";
+        console.error("approveWFLR error:", errorMsg);
+        setError(errorMsg);
+        setLoading(false);
+        throw err;
+      }
+    },
+    [provider]
+  );
+
+  const getFETHBalance = useCallback(
+    async (tokenAddress: string, userAddress: string) => {
+      try {
+        if (!provider) throw new Error("Provider not connected");
+
+        const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+        const balance = await tokenContract.balanceOf(userAddress);
+        return ethers.utils.formatEther(balance);
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to get balance";
+        console.error("getFETHBalance error:", errorMsg);
+        setError(errorMsg);
+        throw err;
+      }
+    },
+    [provider]
+  );
+
+  const getWFLRBalance = useCallback(
+    async (tokenAddress: string, userAddress: string) => {
+      try {
+        if (!provider) throw new Error("Provider not connected");
+
+        const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+        const balance = await tokenContract.balanceOf(userAddress);
+        return ethers.utils.formatEther(balance);
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to get balance";
+        console.error("getWFLRBalance error:", errorMsg);
+        setError(errorMsg);
+        throw err;
+      }
+    },
+    [provider]
+  );
+
   return {
     swapFETHForFLR,
     swapFLRForFETH,
@@ -210,6 +327,10 @@ export function useFAsset(provider: ethers.providers.Web3Provider | null) {
     getReserveWFLR,
     getFETHAddress,
     getWFLRAddress,
+    approveFETH,
+    approveWFLR,
+    getFETHBalance,
+    getWFLRBalance,
     loading,
     error,
     isReady,
